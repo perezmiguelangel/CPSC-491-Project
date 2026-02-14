@@ -4,23 +4,26 @@ import DashboardPage from './pages/DashboardPage'
 import SettingsPage from './pages/SettingsPage'
 import EventsPage from './pages/EventsPage';
 import NodesPage from './pages/NodesPage';
+import { ThemeProvider } from "@/components/theme-provider"
 import './App.css'
 
 
 function App() {
 
   return (
-    <Routes>
-      <Route path="/" element={<DashboardLayout />}>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 
-        <Route path='dashboard' element={<DashboardPage />} />
-        <Route path='settings' element={<SettingsPage />} />
-        <Route path='nodes' element={<NodesPage />} />
-        <Route path='events' element={<EventsPage />} />
+      <Routes>
+        <Route path="/" element={<DashboardLayout />}>
       
-      </Route>
-    </Routes>
-      
+          <Route path='dashboard' element={<DashboardPage />} />
+          <Route path='settings' element={<SettingsPage />} />
+          <Route path='nodes' element={<NodesPage />} />
+          <Route path='events' element={<EventsPage />} />
+        
+        </Route>
+      </Routes>
+    </ThemeProvider>
     
   )
 }

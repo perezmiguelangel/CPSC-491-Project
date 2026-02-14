@@ -11,6 +11,8 @@ import {
 import {IconHome, IconShieldExclamation, IconTopologyRing2, IconSettings} from "@tabler/icons-react"
 import { Link } from "react-router-dom"
 
+import { ModeToggle } from "./DarkModeToggle";
+
 const data = {
   navigation: [
     {
@@ -45,6 +47,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         <span className="font-extrabold">
             HEADER
         </span>
+        <ModeToggle></ModeToggle>
         </SidebarHeader>
         <SidebarMenu className="flex items-center">
           {data.navigation.map((item) => (
