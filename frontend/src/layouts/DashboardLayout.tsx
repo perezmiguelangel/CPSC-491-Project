@@ -6,12 +6,9 @@ export default function DashboardLayout() {
     return(
         <div className='flex h-screen'>
             <SidebarProvider>
-            <AppSidebar />
-            <SidebarTrigger/>
-            <h1 className='bg-amber-400'>DashboardLayout!!!</h1>
-            
-
-            <Outlet />
+                <AppSidebar />
+                <SidebarTrigger/>
+                <Outlet />
             </SidebarProvider>
         </div>
     )
