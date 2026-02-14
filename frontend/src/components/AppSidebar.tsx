@@ -2,13 +2,13 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {Home} from "lucide-react"
+
+import {IconHome, IconShieldExclamation, IconTopologyRing2, IconSettings} from "@tabler/icons-react"
 import { Link } from "react-router-dom"
 
 const data = {
@@ -16,22 +16,22 @@ const data = {
     {
       title: "Dashboard",
       url:   "/dashboard",
-      icon:  Home
+      icon:  IconHome
     },
     {
       title: "Events",
       url:   "/events",
-      icon:  Home
+      icon:  IconShieldExclamation
     },
     {
       title: "Nodes",
       url:   "/nodes",
-      icon:  Home
+      icon:  IconTopologyRing2
     },
     {
       title: "Settings",
       url:   "/settings",
-      icon:  Home
+      icon:  IconSettings
     }
   ]
 };
@@ -39,14 +39,13 @@ const data = {
 // props is used here to fetch primitive properties of Sidebar
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" className="h-auto border-r" {...props}>
-      <SidebarHeader className="flex justify-center border-b">
+    <Sidebar collapsible="icon" className="h-screen border-r" {...props}>
+      <SidebarContent className="flex flex-col justify-center">
+        <SidebarHeader className="flex border-b">
         <span className="font-extrabold">
             HEADER
         </span>
-      </SidebarHeader>
-
-      <SidebarContent className="">
+        </SidebarHeader>
         <SidebarMenu className="flex items-center">
           {data.navigation.map((item) => (
             <SidebarMenuItem key={item.title}>
