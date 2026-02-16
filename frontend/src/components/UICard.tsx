@@ -8,19 +8,27 @@ import {
     CardTitle,
     } from "@/components/ui/card"
 
-export function UICard({...props}: React.ComponentProps<typeof Card>){
+interface UICardProps extends React.ComponentProps<typeof Card>{
+    title?: string;
+    desc?: string;
+    action?: React.ReactNode;
+    children: React.ReactNode;
+    footer?: string;
+}
+
+export function UICard({title, desc, action, children, footer, className, ...props}: UICardProps){
     return(
-        <Card>
+        <Card className={className} {...props}>
             <CardHeader>
-                <CardTitle>Card Title</CardTitle>
-                <CardDescription>Card Description</CardDescription>
-                <CardAction>Card Action</CardAction>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{desc}</CardDescription>
+                <CardAction>{action}</CardAction>
             </CardHeader>
         <CardContent>
-            <p>Card Content</p>
+            {children}
         </CardContent>
         <CardFooter>
-            <p>Card Footer</p>
+            {footer}
         </CardFooter>
         </Card>
     )
