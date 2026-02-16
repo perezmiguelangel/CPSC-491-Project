@@ -34,14 +34,34 @@ def get_events():
     return [
         {
         "id": 0,
-        "ip_addr": "192.168.1.1",
-        "status": True,
-        "hostname": "miguelspc"
+        "hostname": "home",
+        "ip_addr": "100.64.0.1",
+        "cpu_temp": "48",
+        "memory_used": "24%",
+        "status": "Connected"
+        },
+        {
+        "id": 1,
+        "hostname": "nodeFriend",
+        "ip_addr": "100.64.0.23",
+        "cpu_temp": "61",
+        "memory_used": "78%",
+        "status": "Connected"
         },
         {
         "id": 2,
-        "ip_addr": "192.168.1.253",
-        "status": False,
-        "hostname": "miguelsprankpc"
+        "hostname": "home2",
+        "ip_addr": "-",
+        "cpu_temp": "-",
+        "memory_used": "-",
+        "status": "Disconnected"
+        },
+        {
+        "id": 3,
+        "hostname": "nodeFamily",
+        "ip_addr": "100.64.0.49",
+        "cpu_temp": "56",
+        "memory_used": "30%",
+        "status": "Connected"
         }
     ]

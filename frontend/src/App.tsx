@@ -15,6 +15,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<DashboardLayout />}>
+          <Route index element={<DashboardPage />}/>
       
           <Route path='dashboard' element={<DashboardPage />} />
           <Route path='settings' element={<SettingsPage />} />

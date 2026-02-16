@@ -44,10 +44,9 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" className="h-screen border-r" {...props}>
       <SidebarContent className="flex flex-col justify-center">
         <SidebarHeader className="flex border-b">
-        <span className="font-extrabold">
-            HEADER
+        <span className="font-extrabold group-data-[state=collapsed]:hidden">
+            Welcome!
         </span>
-        <ModeToggle></ModeToggle>
         </SidebarHeader>
         <SidebarMenu className="flex items-center">
           {data.navigation.map((item) => (
@@ -63,8 +62,14 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <span>Username</span>
-      </SidebarFooter>
+        <div>
+          <ModeToggle/>
+          <span className="group-data-[state=collapsed]:hidden">Username</span>
+        </div>
+          </SidebarFooter>
+      
+
+      
     </Sidebar>
   )
 }
