@@ -12,7 +12,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"Hello"}
+    return {"API is working!"}
 
 @app.get("/api/events")
 def get_events():
@@ -30,7 +30,7 @@ def get_events():
     ]
 
 @app.get("/api/nodes")
-def get_events():
+def get_nodes():
     return [
         {
         "id": 0,

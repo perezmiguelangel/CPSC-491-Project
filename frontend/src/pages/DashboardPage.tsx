@@ -3,48 +3,13 @@ import { ChartAreaInteractive } from "@/components/ChartTest"
 import { UITable } from "@/components/UITable"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { UIPieChart } from "@/components/UIPieChart"
 import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 
 const badgeStyles: Record<string, string> = {
     Disconnected: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
     Connected: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
 }
-
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-]
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "var(--chart-1)",
-  },
-  safari: {
-    label: "Safari",
-    color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig
-
 
 export default function DashboardPage(){
     const [nodes, setNodes] = useState([]);
@@ -56,16 +21,19 @@ export default function DashboardPage(){
                 .catch(() => console.error("Could not fetch nodes"));
         }, []);
 
-
-
     return(
         <div className="grid gap-4">
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <UICard title="" desc="">
-                <UIPieChart config={chartConfig} data={chartData} dataKey="visitors" nameKey="browser"></UIPieChart>
+            <UICard title="Quick Actions" desc="" footer="">
+                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+                    <Button variant="outline" size="sm">Clear Recent Events</Button>
+                    <Button variant="outline">Prune Database</Button>
+                    <Button variant="outline">Force System Upgrade on All Nodes</Button>
+                </div>
             </UICard>
 
+            <div className="lg:col-span-2">
             <UICard title="Nodes" desc="">
                 <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
                     {nodes.map((item) => (
@@ -83,7 +51,7 @@ export default function DashboardPage(){
                     ))}
                 </UITable>    
             </UICard>
-            
+            </div>
             </div>
 
             <ChartAreaInteractive></ChartAreaInteractive>
@@ -93,6 +61,6 @@ export default function DashboardPage(){
                 <div className="font-bold">Test children</div>
             </UICard>
             </div>
-        </div>
+            </div>
     )
 }

@@ -24,7 +24,16 @@ export default function NodesPage(){
     console.log(stringJson);
 
     return(
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <UICard title="Summary" desc="Node Stats Summary" footer="">
+                <div>
+                    Total Nodes: {nodes.length}
+                </div>
+                <div>
+                    Total Online: {nodes.filter(n => n.status === "Connected").length}
+                </div>
+            </UICard>
+            <div className="lg:col-span-2">
             <UICard title="Nodes" desc="Currently monitored nodes">
                 <UITable caption={""} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
                     {nodes.map((item) => (
@@ -42,15 +51,10 @@ export default function NodesPage(){
                     ))}
                 </UITable>
             </UICard>
-            <UICard title="Resource Usage" desc="System Resource Usage">
-
-            </UICard>
-
-            <div>
-            <UICard title="test" desc="test">
-
-            </UICard>
             </div>
+            
+
+            
         </div>
 
     )
