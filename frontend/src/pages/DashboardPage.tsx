@@ -11,14 +11,41 @@ const badgeStyles: Record<string, string> = {
     Connected: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
 }
 
-export default function DashboardPage(){
-    const [nodes, setNodes] = useState([]);
+interface nodeData {
+    hostname: string,
+    localIP: string,
+    cpuTemp: number,
+    cpuLoad: number,
+    cpuCount: number,
+    memoryLoad: number,
+    memoryTotal: number,
+    lastSeen: string,
+    networkData: any[]
+}
 
-    useEffect(() => {
-            fetch("http://localhost:8000/api/nodes")
-                .then((response) => response.json())
-                .then((data) => setNodes(data))
-                .catch(() => console.error("Could not fetch nodes"));
+export default function DashboardPage(){
+    const [nodes, setNodes] = useState<nodeData[]>([]);
+    
+        useEffect(() => {
+            const fetchNodes = async () => {
+                const response = await fetch("http://localhost:8000/api/nodes")
+                const data = await response.json()
+                setNodes(data)
+            }
+            try
+            {
+                fetchNodes()
+            }
+            catch(error)
+            {
+                console.error('Error', error);
+            }
+    
+    
+            //console.log(nodes);
+            const interval = setInterval(fetchNodes, 5000)
+            return () => clearInterval(interval)
+    
         }, []);
 
     return(
@@ -37,14 +64,14 @@ export default function DashboardPage(){
             <UICard title="Nodes" desc="">
                 <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
                     {nodes.map((item) => (
-                        <TableRow key={item.id}>
+                        <TableRow key={item.hostname}>
                             <TableCell>{item.hostname}</TableCell>
-                            <TableCell>{item.ip_addr}</TableCell>
-                            <TableCell>{item.cpu_temp}</TableCell>
-                            <TableCell>{item.memory_used}</TableCell>
+                            <TableCell>{item.localIP}</TableCell>
+                            <TableCell>{item.cpuTemp}</TableCell>
+                            <TableCell>{item.memoryLoad}</TableCell>
                             <TableCell>
-                                <Badge className={badgeStyles[item.status]}>
-                                    {item.status}
+                                <Badge className={badgeStyles[item.lastSeen]}>
+                                    {item.lastSeen}
                                 </Badge>
                             </TableCell>
                         </TableRow>
