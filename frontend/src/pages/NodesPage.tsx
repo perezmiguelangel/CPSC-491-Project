@@ -4,6 +4,17 @@ import { UICard } from "@/components/UICard";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+interface nodeData {
+    hostname: string,
+    localIP: string,
+    cpuTemp: number,
+    cpuLoad: number,
+    cpuCount: number,
+    memoryLoad: number,
+    memoryTotal: number,
+    lastSeen: string,
+    networkData: any[]
+}
 
 const badgeStyles: Record<string, string> = {
     Disconnected: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
@@ -11,17 +22,25 @@ const badgeStyles: Record<string, string> = {
 }
 
 export default function NodesPage(){
-    const [nodes, setNodes] = useState([]);
+    const [nodes, setNodes] = useState<nodeData[]>([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/nodes")
-            .then((response) => response.json())
-            .then((data) => setNodes(data))
-            .catch(() => console.error("Could not fetch nodes"));
+        const fetchNodes = async () => {
+            const response = await fetch("http://localhost:8000/api/nodes")
+            const data = await response.json()
+            setNodes(data)
+        }
+
+
+        fetchNodes()
+        console.log(nodes);
+        const interval = setInterval(fetchNodes, 5000)
+        return () => clearInterval(interval)
+
     }, []);
-    
-    const stringJson = JSON.stringify(nodes, null, 2);
-    console.log(stringJson);
+
+    //const stringJson = JSON.stringify(nodes, null, 2);
+    //console.log(stringJson);
 
     return(
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -30,21 +49,24 @@ export default function NodesPage(){
                     Total Nodes: {nodes.length}
                 </div>
                 <div>
-                    Total Online: {nodes.filter(n => n.status === "Connected").length}
+                    Total Online: {nodes.filter(n => n.lastSeen === "Connected").length}
                 </div>
             </UICard>
             <div className="lg:col-span-2">
             <UICard title="Nodes" desc="Currently monitored nodes">
-                <UITable caption={""} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
+                <UITable caption={""} headers={["Host", "IP", "CPU Temp", "CPU Load","CPU Count", "Memory Used", "Memory Total",  "Status"]}>
                     {nodes.map((item) => (
-                        <TableRow key={item.id}>
+                        <TableRow key={item.hostname}>
                             <TableCell>{item.hostname}</TableCell>
-                            <TableCell>{item.ip_addr}</TableCell>
-                            <TableCell>{item.cpu_temp}</TableCell>
-                            <TableCell>{item.memory_used}</TableCell>
+                            <TableCell>{item.localIP}</TableCell>
+                            <TableCell>{item.cpuTemp}</TableCell>
+                            <TableCell>{item.cpuLoad}</TableCell>
+                            <TableCell>{item.cpuCount}</TableCell>
+                            <TableCell>{item.memoryLoad}</TableCell>
+                            <TableCell>{item.memoryTotal}</TableCell>
                             <TableCell>
-                                <Badge className={badgeStyles[item.status]}>
-                                    {item.status}
+                                <Badge className={badgeStyles[item.lastSeen]}>
+                                    {item.lastSeen}
                                 </Badge>
                             </TableCell>
                         </TableRow>

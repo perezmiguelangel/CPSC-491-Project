@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models import Node
-from datetime import datetime, timezone
+from datetime import datetime
 
 # Temp data before database implementation
 nodeData: Dict[str, dict] = {}

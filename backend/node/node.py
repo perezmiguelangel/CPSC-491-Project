@@ -1,6 +1,6 @@
 # Script to send appropriate node information to admin
 
-import psutil, socket, requests
+import psutil, socket, requests, time
 
 def getConnectionData():
     # inet gives both ipv4/6 
@@ -49,8 +49,10 @@ def sendNodeData():
     except:
         print(f"Failed to send data")
 
+if __name__ == "__main__":
+    while True:
+        sendNodeData()
+        time.sleep(5)
 
-
-sendNodeData()
 
 #print(getConnectionData())
