@@ -2,44 +2,67 @@ import { UITable } from "@/components/UITable"
 import { UICard } from "@/components/UICard"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react"
+import { Table } from "lucide-react"
 
-const eventsData = [
-    { id: 1, timestamp: "2025-02-15 00:03:12", event: "Failed SSH login", source: "192.168.1.42", user: "root", severity: "High" },
-    { id: 2, timestamp: "2025-02-15 00:11:45", event: "Port scan detected", source: "203.0.113.7", user: "—", severity: "Medium" },
-    { id: 3, timestamp: "2025-02-15 01:22:09", event: "Sudo privilege escalation", source: "10.0.0.5", user: "jdoe", severity: "High" },
-    { id: 4, timestamp: "2025-02-15 02:08:33", event: "Cron job modified", source: "10.0.0.5", user: "jdoe", severity: "Medium" },
-    { id: 5, timestamp: "2025-02-15 03:44:01", event: "Successful SSH login", source: "10.0.0.11", user: "deploy", severity: "Info" },
-    { id: 6, timestamp: "2025-02-15 04:17:58", event: "Firewall rule changed", source: "10.0.0.1", user: "admin", severity: "High" },
-    { id: 7, timestamp: "2025-02-15 05:02:44", event: "/etc/passwd accessed", source: "10.0.0.5", user: "jdoe", severity: "High" },
-    { id: 8, timestamp: "2025-02-15 06:30:19", event: "New user account created", source: "10.0.0.1", user: "admin", severity: "Medium" },
-    { id: 9, timestamp: "2025-02-15 07:15:27", event: "SSH key added", source: "10.0.0.11", user: "deploy", severity: "Medium" },
-    { id: 10, timestamp: "2025-02-15 08:49:03", event: "Service restarted: nginx", source: "10.0.0.1", user: "admin", severity: "Info" },
-]
 const badgeStyles: Record<string, string> = {
     High: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
     Medium: "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
     Info: ""
 }
 
+interface nodeData {
+    hostname: string,
+    localIP: string,
+    cpuTemp: number,
+    cpuLoad: number,
+    cpuCount: number,
+    memoryLoad: number,
+    memoryTotal: number,
+    lastSeen: string,
+    networkData: any[]
+}
+
 export default function EventsPage(){
+    const [nodes, setNodes] = useState<nodeData[]>([]);
+
+    useEffect(() => {
+            const fetchNodes = async () => {
+                const response = await fetch("http://localhost:8000/api/nodes")
+                const data = await response.json()
+                setNodes(data)
+            }
+            try
+            {
+                fetchNodes()
+            }
+            catch(error)
+            {
+                console.error('Error', error);
+            }
+
+            const interval = setInterval(fetchNodes, 5000)
+            return () => clearInterval(interval)
+    
+        }, []);
+
+
     return(
         <div className="">
-            <UICard title="Events" desc="Current Security Events">
-                <UITable caption={""} headers={["Timestamp", "Event", "Source", "User", "Severity"]}>
-                    {eventsData.map((item) => (
-                        <TableRow key={item.id}>
-                            <TableCell>{item.timestamp}</TableCell>
-                            <TableCell>{item.event}</TableCell>
-                            <TableCell>{item.source}</TableCell>
-                            <TableCell>{item.user}</TableCell>
-                            <TableCell>
-                                <Badge className={badgeStyles[item.severity]}>
-                                    {item.severity}
-                                </Badge>
-                                
-                            </TableCell>
-                        </TableRow>
-                    ))}
+            <UICard title="Events" desc="Current Network Events">
+                <UITable caption={""} headers={["Node", "Process", "Remote IP", "Port", "Status"]}>
+                    {nodes.map((node) => 
+                        node.networkData.map((connection, index) => (
+                            <TableRow key={`${node.hostname}-${index}`}>
+                                <TableCell>{node.hostname}</TableCell>
+                                <TableCell>{connection.process_name}</TableCell>
+                                <TableCell>{connection.remote_ip.split('.').slice(0,2).join('.')}.***.**</TableCell>
+                                <TableCell>{connection.port}</TableCell>
+                                <TableCell>{connection.status}</TableCell>
+
+                            </TableRow>
+                        ))
+                    )}
                 </UITable>
             </UICard>
         </div>

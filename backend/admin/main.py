@@ -5,12 +5,13 @@ from datetime import datetime
 
 # Temp data before database implementation
 nodeData: Dict[str, dict] = {}
+origins = ['http://localhost:5173', 'https://localhost:5173']
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -30,10 +30,17 @@ export default function NodesPage(){
             const data = await response.json()
             setNodes(data)
         }
+        try
+        {
+            fetchNodes()
+        }
+        catch(error)
+        {
+            console.error('Error', error);
+        }
 
 
-        fetchNodes()
-        console.log(nodes);
+        //console.log(nodes);
         const interval = setInterval(fetchNodes, 5000)
         return () => clearInterval(interval)
 
@@ -44,17 +51,9 @@ export default function NodesPage(){
 
     return(
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <UICard title="Summary" desc="Node Stats Summary" footer="">
-                <div>
-                    Total Nodes: {nodes.length}
-                </div>
-                <div>
-                    Total Online: {nodes.filter(n => n.lastSeen === "Connected").length}
-                </div>
-            </UICard>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
             <UICard title="Nodes" desc="Currently monitored nodes">
-                <UITable caption={""} headers={["Host", "IP", "CPU Temp", "CPU Load","CPU Count", "Memory Used", "Memory Total",  "Status"]}>
+                <UITable caption={""} headers={["Host", "IP", "CPU Temp (C)", "CPU Load (%)","CPU Count", "Memory Used (%)", "Memory Total",  "Status"]}>
                     {nodes.map((item) => (
                         <TableRow key={item.hostname}>
                             <TableCell>{item.hostname}</TableCell>
@@ -73,11 +72,16 @@ export default function NodesPage(){
                     ))}
                 </UITable>
             </UICard>
-            </div>
             
-
-            
+            </div> 
+            <UICard title="Summary" desc="Node Stats Summary" footer="">
+                <div>
+                    Total Nodes: {nodes.length}
+                </div>
+                <div>
+                    Total Online: {nodes.filter(n => n.lastSeen === "Connected").length}
+                </div>
+            </UICard>
         </div>
-
     )
 }
