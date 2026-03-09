@@ -8,6 +8,7 @@ class ConnectionData(BaseModel):
 
 class Node(BaseModel):
     hostname: str
+    localIP: str
     networkData: list[ConnectionData]
     cpuCount: int
     cpuLoad: float

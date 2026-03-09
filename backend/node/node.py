@@ -27,8 +27,11 @@ def getConnectionData():
 
 # Need to account for cases not found, redo
 def sendNodeData():
+    hostname = socket.gethostname()
+    localIP = socket.gethostbyname(hostname)
     data = {
         "hostname": socket.gethostname(),
+        "localIP": localIP,
         "networkData": getConnectionData(),
         "cpuCount": psutil.cpu_count(),
         "cpuLoad": psutil.cpu_percent(interval=1, percpu=False),

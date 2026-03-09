@@ -25,6 +25,7 @@ def root():
 async def receiveNodeData(data: Node):
     nodeData[data.hostname] = {
         "hostname": data.hostname,
+        "localIP": data.localIP,
         "networkData": [connection.dict() for connection in data.networkData],
         "cpuCount": data.cpuCount,
         "cpuLoad": data.cpuLoad,
