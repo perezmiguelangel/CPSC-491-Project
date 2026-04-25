@@ -34,17 +34,40 @@ def getDockerData():
         
         return containerData
     except:
-        containerData = []
         print(f"getDockerData: Docker is not running")
+        return []
+        
+
+def getNetIOCounters():
+    try:
+        netIO = psutil.net_io_counters()
+        bytesSent = netIO[0]
+        bytesRecv = netIO[1]
+        packtSent = netIO[2]
+        packtRecv = netIO[3]
+        result = {"bytesSent": bytesSent, 
+                  "bytesRecv": bytesRecv, 
+                  "packtSent": packtSent, 
+                  "packtRecv": packtRecv}
+        return result
+    except:
+        print("whoops")
+        return {"bytesSent": 0, 
+                "bytesRecv": 0, 
+                "packtSent": 0, 
+                "packtRecv": 0}
+
 
 def sendNodeData():
     hostname = socket.gethostname()
     localIP = socket.gethostbyname(hostname)
+
+    cpuTemp = 0
+    netIOcounters = None
     try:
         cpuTemp = psutil.sensors_temperatures()['coretemp'][0].current
-        netIOcounters = psutil.net_io_counters()
     except:
-        print(f"Error in sendNodeData (Try)")
+        print(f"Error in reading cpuTemp (Try)")
     data = {
         "hostname": socket.gethostname(),
         "localIP": localIP,
@@ -54,9 +77,11 @@ def sendNodeData():
         "cpuTemp": cpuTemp,
         "memoryLoad": psutil.virtual_memory().percent,
         "memoryTotal": psutil.virtual_memory().total / (1024**3),
-        "dockerData": getDockerData(),
-        "netIOcounters": netIOcounters
+        "dockerData": getDockerData() or [],
+        "netIOcounters": getNetIOCounters()
     }
+    print(f"DockerData: {getDockerData()}\nnetIOcounters: {getNetIOCounters()}")
+
     try:
         response = requests.post(
             "http://100.64.0.2:8000/api/nodes",
@@ -72,5 +97,3 @@ if __name__ == "__main__":
         sendNodeData()
         time.sleep(5)
 
-
-#print(getConnectionData())

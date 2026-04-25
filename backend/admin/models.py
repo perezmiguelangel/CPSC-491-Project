@@ -1,10 +1,38 @@
 from pydantic import BaseModel
+from typing import List, Optional, Dict
+from sqlalchemy import Column, String, Float, Integer, JSON, DateTime
+from database import Base
+from datetime import datetime
+
+class nodeDB(Base):
+    __tablename__ = "nodes"
+    hostname = Column(String, primary_key=True)
+    localIP = Column(String)
+    networkData = Column(JSON)
+    cpuCount = Column(Integer)
+    cpuLoad = Column(Float)
+    cpuTemp = Column(Float)
+    memoryLoad = Column(Float)
+    memoryTotal = Column(Float)
+    dockerData = Column(JSON)
+    netIOcounters = Column(JSON)
+    lastSeen = Column(DateTime, default=datetime.now)
 
 class ConnectionData(BaseModel):
     process_name: str
     remote_ip: str
     port: int
     status: str
+
+class DockerContainer(BaseModel):
+    name: str
+    status: str
+
+class netIOCounters(BaseModel):
+    bytesSent: int
+    bytesRecv: int
+    packtSent: int
+    packtRecv: int
 
 class Node(BaseModel):
     hostname: str
@@ -15,6 +43,8 @@ class Node(BaseModel):
     cpuTemp: float
     memoryLoad: float
     memoryTotal: float
+    dockerData: list[DockerContainer] = []
+    netIOcounters: netIOCounters
 
 class NetworkTraffic(BaseModel):
     id: int
