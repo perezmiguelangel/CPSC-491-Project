@@ -1,6 +1,6 @@
 # Script to send appropriate node information to admin
 
-import psutil, socket, requests, time
+import psutil, socket, requests, time, docker
 
 def getConnectionData():
     # inet gives both ipv4/6 
@@ -25,19 +25,37 @@ def getConnectionData():
     
     return connectionData
 
-# Need to account for cases not found, redo
+def getDockerData():
+    try:
+        client = docker.from_env()
+        containerData = []
+        for c in client.containers.list():
+            containerData.append({"name": c.name, "status": c.status})
+        
+        return containerData
+    except:
+        containerData = []
+        print(f"getDockerData: Docker is not running")
+
 def sendNodeData():
     hostname = socket.gethostname()
     localIP = socket.gethostbyname(hostname)
+    try:
+        cpuTemp = psutil.sensors_temperatures()['coretemp'][0].current
+        netIOcounters = psutil.net_io_counters()
+    except:
+        print(f"Error in sendNodeData (Try)")
     data = {
         "hostname": socket.gethostname(),
         "localIP": localIP,
         "networkData": getConnectionData(),
         "cpuCount": psutil.cpu_count(),
         "cpuLoad": psutil.cpu_percent(interval=1, percpu=False),
-        "cpuTemp": psutil.sensors_temperatures()['coretemp'][0].current,
+        "cpuTemp": cpuTemp,
         "memoryLoad": psutil.virtual_memory().percent,
-        "memoryTotal": psutil.virtual_memory().total / (1024**3)
+        "memoryTotal": psutil.virtual_memory().total / (1024**3),
+        "dockerData": getDockerData(),
+        "netIOcounters": netIOcounters
     }
     try:
         response = requests.post(
