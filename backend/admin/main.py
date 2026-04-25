@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from models import Node, nodeDB, Base
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Set
 from sqlalchemy.orm import Session
 from database import getDB, engine, Base
 
@@ -24,6 +24,16 @@ app.add_middleware(
 def root():
     return {"API is working!"}
 
+activeConnections: Set[WebSocket] = set()
+@app.websocket("/ws")
+async def websocketEndpoint(websocket: WebSocket):
+    await websocket.accept()
+    activeConnections.add(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        activeConnections.remove(websocket)
 
 
 @app.post("/api/nodes")
@@ -45,6 +55,10 @@ async def receiveNodeData(data: Node, db: Session = Depends(getDB)):
         db.add(node)
     
     db.commit()
+
+    for connection in activeConnections:
+        await connection.send_json(data.dict())
+
     return{"status": "received"}
 
 
