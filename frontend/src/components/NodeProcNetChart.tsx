@@ -106,11 +106,15 @@ export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
         </defs>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} minTickGap={32} />
+        <YAxis yAxisId="percent" domain={[0,100]} tick={{fontSize: 11}} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
+        <YAxis yAxisId="connections" orientation="right" tick={{fontSize: 11}} tickLine={false} axisLine={false}/>
+
+
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
 
-        <Area dataKey="cpuLoad" type="natural" fill="url(#cpuFill)" stroke="var(--color-cpuLoad)" stackId="a" />
-        <Area dataKey="memoryLoad" type="natural" fill="url(#memoryFill)" stroke="var(--color-memoryLoad)" stackId="a" />
-        <Area dataKey="networkConnections" type="natural" fill="url(#connectionsFill)" stroke="var(--color-networkConnections)" stackId="a" />
+        <Area yAxisId="percent" dataKey="cpuLoad" type="natural" fill="url(#cpuFill)" stroke="var(--color-cpuLoad)"/>
+        <Area yAxisId="percent" dataKey="memoryLoad" type="natural" fill="url(#memoryFill)" stroke="var(--color-memoryLoad)"/>
+        <Area yAxisId="connections" dataKey="networkConnections" type="natural" fill="url(#connectionsFill)" stroke="var(--color-networkConnections)"/>
 
         <ChartLegend content={<ChartLegendContent />} />
 
