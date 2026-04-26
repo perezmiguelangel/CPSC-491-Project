@@ -36,9 +36,11 @@ Warden is split into 3 components to ensure a lightweight monitoring agent
    npm install
    npm run dev
    ```
+
+   > 
 3. Start the node agent on servers
-   > [!NOTE]
-   > Some network sockets will not be available without root priveleges (Docker daemon, system, etc.)
+> [!NOTE]
+> Some network sockets will not be available without root priveleges (Docker daemon, system, etc.)
    ```
    python node.py
    ```
