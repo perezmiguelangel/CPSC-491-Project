@@ -56,8 +56,13 @@ async def receiveNodeData(data: Node, db: Session = Depends(getDB)):
     
     db.commit()
 
+    # 
+    dataSend = data.dict()
+    dataSend["lastSeen"] = datetime.now().isoformat()
+    #
+
     for connection in activeConnections:
-        await connection.send_json(data.dict())
+        await connection.send_json(dataSend)
 
     return{"status": "received"}
 
@@ -65,18 +70,3 @@ async def receiveNodeData(data: Node, db: Session = Depends(getDB)):
 @app.get("/api/nodes")
 def get_nodes(db: Session = Depends(getDB)):
     return db.query(nodeDB).all()
-
-@app.get("/api/events")
-def get_events():
-    return [
-        {
-        "id": 1,
-        "message": "Test Event",
-        "node_id": 1
-        },
-        {
-        "id": 2,
-        "message": "Test Event 2",
-        "node_id": 2
-        }
-    ]

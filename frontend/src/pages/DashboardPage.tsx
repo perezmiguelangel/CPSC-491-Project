@@ -5,6 +5,8 @@ import { TableCell, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { LiveBadge } from "@/components/ui/LiveBadge"
 
 const badgeStyles: Record<string, string> = {
     Disconnected: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
@@ -14,71 +16,102 @@ const badgeStyles: Record<string, string> = {
 interface nodeData {
     hostname: string,
     localIP: string,
-    cpuTemp: number,
-    cpuLoad: number,
+    networkData: any[]
     cpuCount: number,
+    cpuLoad: number,
+    cpuTemp: number,
     memoryLoad: number,
     memoryTotal: number,
+    dockerData: any[],
+    netIOcounters: any[],
     lastSeen: string,
-    networkData: any[]
 }
 
 export default function DashboardPage(){
     const [nodes, setNodes] = useState<nodeData[]>([]);
     
         useEffect(() => {
-            const fetchNodes = async () => {
-                const response = await fetch("http://localhost:8000/api/nodes")
-                const data = await response.json()
-                setNodes(data)
+            const fetchInitNodes = async () => {
+                try{
+                    const response = await fetch("http://127.0.0.1:8000/api/nodes")
+                    const data = await response.json()
+                    setNodes(data)
+                }
+                catch(error){
+                    console.error("Error fetching init. nodes", error)
+                }
             }
-            try
-            {
-                fetchNodes()
-            }
-            catch(error)
-            {
-                console.error('Error', error);
-            }
-    
-    
-            //console.log(nodes);
-            const interval = setInterval(fetchNodes, 5000)
-            return () => clearInterval(interval)
-    
-        }, []);
+
+            fetchInitNodes();
+
+            const webSocket = new WebSocket("ws://127.0.0.1:8000/ws")
+
+            webSocket.onmessage = (event) => {
+                const incomingNode = JSON.parse(event.data)
+
+                setNodes((prevNodes) => {
+                    const existingIndex = prevNodes.findIndex(n => n.hostname === incomingNode.hostname);
+                    if(existingIndex !== -1){
+                        //replacing old data
+                        const newNodes = [...prevNodes];
+                        newNodes[existingIndex] = incomingNode;
+                        return newNodes;
+                    }
+                    else{
+                        return [...prevNodes, incomingNode];
+                    }
+                });
+            };
+
+            return () => webSocket.close();
+        
+            }, []);
 
     return(
         <div className="grid gap-4">
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <UICard title="Quick Actions" desc="" footer="">
-                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-                    <Button variant="outline" size="sm">Clear Recent Events</Button>
-                    <Button variant="outline">Prune Database</Button>
-                    <Button variant="outline">Force System Upgrade on All Nodes</Button>
+                
+                <div className="lg:col-span-2">
+                    <UICard title="Nodes" desc="">
+                        <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
+                            {nodes.map((item) => (
+                                <TableRow key={item.hostname}>
+                                    <TableCell>{item.hostname}</TableCell>
+                                    <TableCell>{item.localIP}</TableCell>
+                                    <TableCell>{item.cpuTemp}</TableCell>
+                                    <TableCell>{item.memoryLoad}</TableCell>
+                                    <TableCell>
+                                        <LiveBadge lastSeen={item.lastSeen} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </UITable>    
+                    </UICard>
                 </div>
-            </UICard>
-
-            <div className="lg:col-span-2">
-            <UICard title="Nodes" desc="">
-                <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
-                    {nodes.map((item) => (
-                        <TableRow key={item.hostname}>
-                            <TableCell>{item.hostname}</TableCell>
-                            <TableCell>{item.localIP}</TableCell>
-                            <TableCell>{item.cpuTemp}</TableCell>
-                            <TableCell>{item.memoryLoad}</TableCell>
-                            <TableCell>
-                                <Badge className={badgeStyles[item.lastSeen]}>
-                                    {item.lastSeen}
-                                </Badge>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </UITable>    
-            </UICard>
-            </div>
+                <div className="">
+                    
+                    <UICard className="" title="Active Docker Containers" desc="" footer="">
+                        <ScrollArea className="h-72 rounded-md">
+                        <UITable caption={""} headers={["Name", "Status"]}>
+                                {nodes.map((item) => (
+                                    item.dockerData && item.dockerData.map((container, index) => (
+                                        <TableRow key={`${item.hostname}-docker-${index}`}>
+                                            <TableCell>{container.name}</TableCell>
+                                            <TableCell>
+                                                <Badge className={container.status.includes('running') ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}>
+                                                    {container.status}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                
+                                ))}
+                            </UITable>
+                            </ScrollArea>
+                    </UICard>
+                    
+                </div>
             </div>
 
             <ChartAreaInteractive></ChartAreaInteractive>

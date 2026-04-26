@@ -34,7 +34,7 @@ def getDockerData():
         
         return containerData
     except:
-        print(f"getDockerData: Docker is not running")
+        print(f"getDockerData: Docker is not running!")
         return []
         
 
@@ -80,7 +80,7 @@ def sendNodeData():
         "dockerData": getDockerData() or [],
         "netIOcounters": getNetIOCounters()
     }
-    print(f"DockerData: {getDockerData()}\nnetIOcounters: {getNetIOCounters()}")
+    #print(f"DockerData: {getDockerData()}\nnetIOcounters: {getNetIOCounters()}")
 
     try:
         response = requests.post(
