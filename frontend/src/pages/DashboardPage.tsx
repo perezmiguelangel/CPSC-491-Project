@@ -1,5 +1,4 @@
 import { UICard } from "@/components/UICard"
-import { ChartAreaInteractive } from "@/components/ChartTest"
 import { UITable } from "@/components/UITable"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -7,6 +6,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { LiveBadge } from "@/components/ui/LiveBadge"
+import { NodeProcNetChart } from "@/components/NodeProcNetChart"
+import { Select, SelectContent, SelectGroup, SelectItem,
+         SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const badgeStyles: Record<string, string> = {
     Disconnected: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
@@ -29,6 +31,8 @@ interface nodeData {
 
 export default function DashboardPage(){
     const [nodes, setNodes] = useState<nodeData[]>([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const [selectedHostname, setSelectedHostname] = useState<string>("homelab")
     
         useEffect(() => {
             const fetchInitNodes = async () => {
@@ -61,6 +65,7 @@ export default function DashboardPage(){
                         return [...prevNodes, incomingNode];
                     }
                 });
+                setRefreshTrigger(prev => prev + 1)
             };
 
             return () => webSocket.close();
@@ -114,7 +119,24 @@ export default function DashboardPage(){
                 </div>
             </div>
 
-            <ChartAreaInteractive></ChartAreaInteractive>
+            <UICard className="" title="Network History & Metrics" desc="CPU, memory, and network connections over time" footer="">
+                <Select value={selectedHostname} onValueChange={setSelectedHostname}>
+                    <SelectTrigger className="w-45 mb-4">
+                        <SelectValue placeholder="Select a node" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Nodes</SelectLabel>
+                            {nodes.map((node) => (
+                                <SelectItem key={node.hostname} value={node.hostname}>
+                                    {node.hostname}
+                                </SelectItem>
+                            ))}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <NodeProcNetChart hostname={selectedHostname} refreshTrigger={refreshTrigger} />
+            </UICard>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
             <UICard title="Stats" desc="This is a desc" footer="footer">

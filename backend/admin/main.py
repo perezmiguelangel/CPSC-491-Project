@@ -81,7 +81,28 @@ async def receiveNodeData(data: Node, db: Session = Depends(getDB)):
 
     return{"status": "received"}
 
+@app.get("/api/nodes/{hostname}/snapshots")
+def get_snapshots(hostname: str, db: Session = Depends(getDB)):
+    snapshots = db.query(nodeSnapshotDB).filter(nodeSnapshotDB.hostname == hostname)\
+                                        .order_by(nodeSnapshotDB.timestamp.desc())\
+                                        .limit(100)\
+                                        .all()
+    
+    snapshots = list(reversed(snapshots))
+
+    return [
+        {
+            "timestamp": s.timestamp.isoformat(),
+            "cpuLoad": s.cpuLoad,
+            "memoryLoad": s.memoryLoad,
+            "networkConnections": len(s.networkData) if s.networkData else 0,
+            "dockerData": s.dockerData,
+            "netIOcounters": s.netIOcounters
+        }
+        for s in snapshots
+    ]
 
 @app.get("/api/nodes")
 def get_nodes(db: Session = Depends(getDB)):
     return db.query(nodeDB).all()
+
