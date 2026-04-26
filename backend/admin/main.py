@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from models import Node, nodeDB, Base
+from models import Node, nodeDB, Base, nodeSnapshotDB
 from datetime import datetime
 from typing import Dict, Set
 from sqlalchemy.orm import Session
@@ -53,6 +53,21 @@ async def receiveNodeData(data: Node, db: Session = Depends(getDB)):
     else:
         node = nodeDB(**data.dict(), lastSeen=datetime.now())
         db.add(node)
+
+
+    # Historical data save
+    snapshot = nodeSnapshotDB(
+    hostname=data.hostname,
+    timestamp=datetime.now(),
+    cpuLoad=data.cpuLoad,
+    cpuTemp=data.cpuTemp,
+    memoryLoad=data.memoryLoad,
+    networkData=[connection.dict() for connection in data.networkData],
+    netIOcounters=data.netIOcounters.dict(),
+    dockerData=[container.dict() for container in data.dockerData]
+    )
+    db.add(snapshot)
+    #
     
     db.commit()
 

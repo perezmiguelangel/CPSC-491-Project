@@ -30,7 +30,7 @@ export function LiveBadge({ lastSeen }: { lastSeen: string}) {
             {isLive ? (
                 <Badge className="bg-green-500/10 text-green-400 flex gap-1.5 items-center">
                     <CheckCircle2 className="w-3.5 h-3.5 animate-pulse" />
-                    Live
+                    Online
                 </Badge>
             ) : (
                 <Badge className="bg-red-500/10 text-red-400 flex gap-1.5 items-center">

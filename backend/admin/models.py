@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 from sqlalchemy import Column, String, Float, Integer, JSON, DateTime
 from database import Base
 from datetime import datetime
@@ -18,10 +18,23 @@ class nodeDB(Base):
     netIOcounters = Column(JSON)
     lastSeen = Column(DateTime, default=datetime.now)
 
+class nodeSnapshotDB(Base):
+    __tablename__ = "snapshots"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    hostname = Column(String, index=True)
+    timestamp = Column(DateTime, default=datetime.now)
+    cpuLoad = Column(Float)
+    cpuTemp = Column(Float)
+    memoryLoad = Column(Float)
+    networkData = Column(JSON)
+    netIOcounters = Column(JSON)
+    dockerData = Column(JSON)
+
 class ConnectionData(BaseModel):
     process_name: str
+    local_port: Optional[int] = None
     remote_ip: str
-    port: int
+    remote_port: Optional[int] = None
     status: str
 
 class DockerContainer(BaseModel):
@@ -45,6 +58,7 @@ class Node(BaseModel):
     memoryTotal: float
     dockerData: list[DockerContainer] = []
     netIOcounters: netIOCounters
+
 
 class NetworkTraffic(BaseModel):
     id: int

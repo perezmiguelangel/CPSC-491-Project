@@ -50,14 +50,15 @@ export default function EventsPage(){
     return(
         <div className="">
             <UICard title="Events" desc="Current Network Events">
-                <UITable caption={""} headers={["Node", "Process", "Remote IP", "Port", "Status"]}>
+                <UITable caption={""} headers={["Node", "Process", "Local Port" ,"Remote IP", "Remote Port", "Status"]}>
                     {nodes.map((node) => 
                         node.networkData.map((connection, index) => (
                             <TableRow key={`${node.hostname}-${index}`}>
                                 <TableCell>{node.hostname}</TableCell>
                                 <TableCell>{connection.process_name}</TableCell>
+                                <TableCell>{connection.local_port}</TableCell>
                                 <TableCell>{connection.remote_ip.split('.').slice(0,2).join('.')}.***.**</TableCell>
-                                <TableCell>{connection.port}</TableCell>
+                                <TableCell>{connection.remote_port}</TableCell>
                                 <TableCell>{connection.status}</TableCell>
 
                             </TableRow>

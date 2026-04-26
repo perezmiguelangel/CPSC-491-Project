@@ -2,7 +2,7 @@ import {Routes, Route} from 'react-router-dom'
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage'
 import SettingsPage from './pages/SettingsPage'
-import EventsPage from './pages/EventsPage';
+import EventsPage from './pages/NetworkPage';
 import NodesPage from './pages/NodesPage';
 import { ThemeProvider } from "@/components/theme-provider"
 import './App.css'

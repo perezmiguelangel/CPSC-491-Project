@@ -79,8 +79,8 @@ export default function DashboardPage(){
                                 <TableRow key={item.hostname}>
                                     <TableCell>{item.hostname}</TableCell>
                                     <TableCell>{item.localIP}</TableCell>
-                                    <TableCell>{item.cpuTemp}</TableCell>
-                                    <TableCell>{item.memoryLoad}</TableCell>
+                                    <TableCell>{item.cpuTemp}°C</TableCell>
+                                    <TableCell>{item.memoryLoad}%</TableCell>
                                     <TableCell>
                                         <LiveBadge lastSeen={item.lastSeen} />
                                     </TableCell>

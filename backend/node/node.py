@@ -1,6 +1,7 @@
 # Script to send appropriate node information to admin
 
 import psutil, socket, requests, time, docker
+import json
 
 def getConnectionData():
     # inet gives both ipv4/6 
@@ -11,18 +12,28 @@ def getConnectionData():
     #Need to figure out per process network io!!
     for x in connections:
         try:
-            if x.status == 'ESTABLISHED' and x.raddr.ip:
+            if x.status in ['ESTABLISHED', 'LISTEN']:
                 # Now for lookup of corresponding process
-                process = psutil.Process(x.pid)
+                remoteIP = x.raddr.ip if x.raddr else "Local"
+                remotePort = x.raddr.port if x.raddr else None
+                
+                processName = "System"
+                if x.pid:
+                    process = psutil.Process(x.pid)
+                    processName = process.name()
+                
                 connectionData.append({
-                    "process_name": process.name(),
-                    "remote_ip": x.raddr.ip,
-                    "port": x.raddr.port,
-                    "status": process.status()
+                    "process_name": processName,
+                    "local_port": x.laddr.port,
+                    "remote_ip": remoteIP,
+                    "remote_port": remotePort,
+                    "status": x.status
                 })
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
     
+    #print(connectionData)
+
     return connectionData
 
 def getDockerData():
@@ -81,7 +92,8 @@ def sendNodeData():
         "netIOcounters": getNetIOCounters()
     }
     #print(f"DockerData: {getDockerData()}\nnetIOcounters: {getNetIOCounters()}")
-
+    #print(json.dumps(data, indent=2))
+    
     try:
         response = requests.post(
             "http://100.64.0.2:8000/api/nodes",

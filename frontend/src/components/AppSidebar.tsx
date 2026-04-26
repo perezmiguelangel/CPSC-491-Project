@@ -21,7 +21,7 @@ const data = {
       icon:  IconHome
     },
     {
-      title: "Events",
+      title: "Network",
       url:   "/events",
       icon:  IconShieldExclamation
     },
