@@ -75,6 +75,25 @@ export default function DashboardPage(){
     return(
         <div className="grid gap-4">
             
+            <UICard className="" title="Network History & Metrics" desc="CPU, memory, and network connections over time" footer="">
+                <Select value={selectedHostname} onValueChange={setSelectedHostname}>
+                    <SelectTrigger className="w-45 mb-4">
+                        <SelectValue placeholder="Select a node" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Nodes</SelectLabel>
+                            {nodes.map((node) => (
+                                <SelectItem key={node.hostname} value={node.hostname}>
+                                    {node.hostname}
+                                </SelectItem>
+                            ))}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <NodeProcNetChart hostname={selectedHostname} refreshTrigger={refreshTrigger} />
+            </UICard>
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 
                 <div className="lg:col-span-2">
@@ -94,9 +113,9 @@ export default function DashboardPage(){
                         </UITable>    
                     </UICard>
                 </div>
-                <div className="">
+                <div className="justify-center">
                     
-                    <UICard className="" title="Active Docker Containers" desc="" footer="">
+                    <UICard className="" title="Docker Containers" desc="" footer="">
                         <ScrollArea className="h-72 rounded-md">
                         <UITable caption={""} headers={["Name", "Status"]}>
                                 {nodes.map((item) => (
@@ -119,30 +138,7 @@ export default function DashboardPage(){
                 </div>
             </div>
 
-            <UICard className="" title="Network History & Metrics" desc="CPU, memory, and network connections over time" footer="">
-                <Select value={selectedHostname} onValueChange={setSelectedHostname}>
-                    <SelectTrigger className="w-45 mb-4">
-                        <SelectValue placeholder="Select a node" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Nodes</SelectLabel>
-                            {nodes.map((node) => (
-                                <SelectItem key={node.hostname} value={node.hostname}>
-                                    {node.hostname}
-                                </SelectItem>
-                            ))}
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                <NodeProcNetChart hostname={selectedHostname} refreshTrigger={refreshTrigger} />
-            </UICard>
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-            <UICard title="Stats" desc="This is a desc" footer="footer">
-                <div className="font-bold">Test children</div>
-            </UICard>
-            </div>
-            </div>
+        </div>
     )
 }

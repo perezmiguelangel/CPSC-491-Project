@@ -1,7 +1,9 @@
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis,
-         YAxis, Tooltip, ResponsiveContainer} from "recharts"
-
+import { Area, 
+         AreaChart,
+         CartesianGrid,
+         XAxis,
+         YAxis } from "recharts"
 import {
   ChartContainer,
   ChartLegend,
@@ -10,13 +12,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { useNavigate } from "react-router-dom"
 
 const chartConfig = {
   cpuLoad: {
@@ -54,6 +50,7 @@ const API_Addr = "http://127.0.0.1:8000"
 export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
   const [snapshots, setSnapshots] = React.useState<Snapshot[]>([])
   const [loading, setLoading] = React.useState(true)
+  const navigate = useNavigate()
 
   const fetchSnapshots = async () => {
     try {
@@ -69,6 +66,28 @@ export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
     }
   }
 
+  const handleChartClick = (e: any) => {
+  if (e?.activePayload?.[0]) {
+    const snapshot = e.activePayload[0].payload._raw
+    if(!snapshot) return
+
+
+    //
+    const toLocalString = (d: Date) => {
+        const pad = (n: number) => String(n).padStart(2, "0")
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    }
+
+    const clickedTime = snapshot.timestamp.split(".")[0].replace(" ", "T")
+    const asDate = new Date(clickedTime)
+    const start = toLocalString(new Date(asDate.getTime() - 30000))
+    const end = toLocalString(new Date(asDate.getTime() + 30000))
+
+    navigate(`/nodes?hostname=${snapshot.hostname}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
+    //
+  }
+}
+
   React.useEffect(() => {
     //console.log("fetching snapshots, trigger: ", refreshTrigger)
     fetchSnapshots()
@@ -79,6 +98,7 @@ export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
     cpuLoad: s.cpuLoad,
     memoryLoad: s.memoryLoad,
     networkConnections: s.networkConnections,
+    _raw: s,
   }))
 
   if(loading) return (
@@ -89,7 +109,7 @@ export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
 
   return (
     <ChartContainer config={chartConfig} className="aspect-auto h-62 w-full">
-      <AreaChart data={chartData}>
+      <AreaChart data={chartData} onClick={handleChartClick} style={{ cursor: "crosshair"}}>
         <defs>
           <linearGradient id="cpuFill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="var(--color-cpuLoad)" stopOpacity={0.8} />

@@ -3,6 +3,8 @@ import { UITable } from "@/components/UITable";
 import { UICard } from "@/components/UICard";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useSearchParams } from "react-router-dom";
+import { SnapshotViewer } from "@/components/SnapshotViewer";
 
 interface nodeData {
     hostname: string,
@@ -23,6 +25,11 @@ const badgeStyles: Record<string, string> = {
 
 export default function NodesPage(){
     const [nodes, setNodes] = useState<nodeData[]>([]);
+    const [searchParams] = useSearchParams()
+    const hostnameParam = searchParams.get("hostname")
+    const startParam = searchParams.get("start")
+    const endParam = searchParams.get("end")
+
 
     useEffect(() => {
         const fetchNodes = async () => {
@@ -39,12 +46,21 @@ export default function NodesPage(){
             console.error('Error', error);
         }
 
-
         //console.log(nodes);
         const interval = setInterval(fetchNodes, 5000)
         return () => clearInterval(interval)
 
     }, []);
+
+    const formatDateTime = (isoString: string) => {
+        return new Date(isoString).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
 
     //const stringJson = JSON.stringify(nodes, null, 2);
     //console.log(stringJson);
@@ -53,19 +69,19 @@ export default function NodesPage(){
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="lg:col-span-3">
             <UICard title="Nodes" desc="Currently monitored nodes">
-                <UITable caption={""} headers={["Host", "IP", "CPU Temp (C)", "CPU Load (%)","CPU Count", "Memory Used (%)", "Memory Total",  "Status"]}>
+                <UITable caption={""} headers={["Host", "IP", "CPU Temp (°C)", "CPU Load (%)","CPU Count", "Memory Used (%)", "Memory Total",  "Last Seen"]}>
                     {nodes.map((item) => (
                         <TableRow key={item.hostname}>
                             <TableCell>{item.hostname}</TableCell>
                             <TableCell>{item.localIP}</TableCell>
-                            <TableCell>{item.cpuTemp}</TableCell>
-                            <TableCell>{item.cpuLoad}</TableCell>
+                            <TableCell>{item.cpuTemp} °C</TableCell>
+                            <TableCell>{item.cpuLoad} %</TableCell>
                             <TableCell>{item.cpuCount}</TableCell>
-                            <TableCell>{item.memoryLoad}</TableCell>
-                            <TableCell>{item.memoryTotal}</TableCell>
+                            <TableCell>{item.memoryLoad} %</TableCell>
+                            <TableCell>{item.memoryTotal.toFixed(2)} GB</TableCell>
                             <TableCell>
                                 <Badge className={badgeStyles[item.lastSeen]}>
-                                    {item.lastSeen}
+                                    {formatDateTime(item.lastSeen)}
                                 </Badge>
                             </TableCell>
                         </TableRow>
@@ -74,14 +90,14 @@ export default function NodesPage(){
             </UICard>
             
             </div> 
-            <UICard title="Summary" desc="Node Stats Summary" footer="">
-                <div>
-                    Total Nodes: {nodes.length}
-                </div>
-                <div>
-                    Total Online: {nodes.filter(n => n.lastSeen === "Connected").length}
-                </div>
+            <div className="lg:col-span-3">
+
+            <UICard title="Historical Process & Network Data" desc="Manually search or use graph on dashboard to inspect data during time range">
+                <SnapshotViewer hostname={hostnameParam ?? "homelab"} initialStart={startParam ?? undefined} initialEnd={endParam ?? undefined} />
             </UICard>
+            
+            </div> 
+           
         </div>
     )
 }

@@ -2,6 +2,7 @@
 
 import psutil, socket, requests, time, docker
 import json
+import subprocess
 
 def getConnectionData():
     # inet gives both ipv4/6 
@@ -40,7 +41,7 @@ def getDockerData():
     try:
         client = docker.from_env()
         containerData = []
-        for c in client.containers.list():
+        for c in client.containers.list(all=True):
             containerData.append({"name": c.name, "status": c.status})
         
         return containerData
@@ -68,10 +69,18 @@ def getNetIOCounters():
                 "packtSent": 0, 
                 "packtRecv": 0}
 
+def getTailscaleIP():
+    try:
+        ip = subprocess.check_output(["tailscale", "ip", "-4"], stderr=subprocess.STDOUT)
+        return ip.decode("utf-8").strip()
+    except (subprocess.CalledProcessError):
+        return None
 
 def sendNodeData():
     hostname = socket.gethostname()
-    localIP = socket.gethostbyname(hostname)
+    localIP = getTailscaleIP()
+    if not localIP:
+        localIP = socket.gethostbyname(hostname)
 
     cpuTemp = 0
     netIOcounters = None
@@ -93,7 +102,7 @@ def sendNodeData():
     }
     #print(f"DockerData: {getDockerData()}\nnetIOcounters: {getNetIOCounters()}")
     #print(json.dumps(data, indent=2))
-    
+
     try:
         response = requests.post(
             "http://100.64.0.2:8000/api/nodes",
