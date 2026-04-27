@@ -15,17 +15,14 @@ def getConnectionData():
         try:
             if x.status in ['ESTABLISHED', 'LISTEN']:
                 # Now for lookup of corresponding process
-                host = "Not found"
+                host = "notfound"
                 remoteIP = x.raddr.ip if x.raddr else "Local"
-                if remoteIP != "Local":
+                if remoteIP != "Local" and x.status == 'ESTABLISHED':
                     try:
                         host, alias, ipList = socket.gethostbyaddr(remoteIP)
-                        #print(f"Remote IP: {remoteIP} == DNS: {socket.gethostbyaddr(remoteIP)}")
-                    except socket.herror as e:
-                        print(f"Host lookup error: {e}")
-                    except socket.error as e:
-                        print(f"Socket.gethostbyaddr error: {e}")
-
+                    except:
+                        pass
+                #print(host)
                 remotePort = x.raddr.port if x.raddr else None
                 processName = "System"
                 if x.pid:

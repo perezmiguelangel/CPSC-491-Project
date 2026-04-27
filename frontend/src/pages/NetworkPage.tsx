@@ -33,6 +33,7 @@ interface Connection {
     remote_ip: string
     remote_port: number
     status: string
+    remote_ip_hostname: string
 }
 
 export default function EventsPage(){
@@ -123,13 +124,13 @@ export default function EventsPage(){
             </span>
         </div>
         <div>
-            <UITable caption="" headers={["Node", "Process", "Local Port" ,"Remote IP", "Remote Port", "Status"]}>
+            <UITable caption="" headers={["Node", "Process", "Local Port" ,"Remote IP [Resolved Hostname]", "Remote Port", "Status"]}>
                 {paginated.map((connection, index) => (
                     <TableRow key={index}>
                         <TableCell className="font-mono text-xs">{connection.hostname}</TableCell>
                             <TableCell className="font-mono font-semibold">{connection.process_name}</TableCell>
                             <TableCell className="font-mono text-xs">{connection.local_port}</TableCell>
-                            <TableCell className="font-mono text-xs">{connection.remote_ip}</TableCell>
+                            <TableCell className="font-mono text-xs">{connection.remote_ip} [{connection.remote_ip_hostname}]</TableCell>
                             <TableCell className="font-mono text-xs">{connection.remote_port ?? "—"}</TableCell>
                             <TableCell>
                                 <Badge className={connection.status === "ESTABLISHED"

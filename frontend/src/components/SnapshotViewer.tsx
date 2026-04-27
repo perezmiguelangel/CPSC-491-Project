@@ -55,7 +55,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
         return `${(bytes / 1024 ** 3).toFixed(1)} GB`
     }
     
-    const aggregatedProcesses: Record<string, { count: number, ips: Set<string>, ports: Set<number> }> = {}
+    const aggregatedProcesses: Record<string, { count: number, ips: Set<string>, ports: Set<number> , hosts: Set<string>}> = {}
 
     for (const snapshot of snapshots) {
         for (const connection of snapshot.networkData ?? []) {
@@ -65,7 +65,8 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                 aggregatedProcesses[processName] = {
                     count: 0,
                     ips: new Set(),
-                    ports: new Set()
+                    ports: new Set(),
+                    hosts: new Set()
                 }
             }
             aggregatedProcesses[processName].count++
@@ -75,6 +76,9 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
             }
             if (connection.remote_port) {
                 aggregatedProcesses[processName].ports.add(connection.remote_port)
+            }
+            if (connection.remote_ip_hostname) {
+                aggregatedProcesses[processName].hosts.add(connection.remote_ip_hostname)
             }
         }
     }
@@ -90,6 +94,29 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
         totalBytesSentDelta += curr.bytesSent - prev.bytesSent
         totalBytesRecvDelta += curr.bytesRecv - prev.bytesRecv
     }
+    }
+
+    const exportCSV = () => {
+        const headers = ["Timestamp", "Process", "Remote IP", "Remote Port", "Status", "Bytes Sent Delta", "Bytes Recv Delta"]
+        const rows = snapshots.flatMap((s) => (s.networkData ?? []).map((connection: any) => [
+            s.timestamp,
+            connection.process_name,
+            connection.remote_ip,
+            connection.remote_port ?? "",
+            connection.status,
+            totalBytesSentDelta,
+            totalBytesRecvDelta
+        ])
+        )
+
+        const csv = [headers, ...rows].map(r => r.join(",")).join("\n")
+        const blob = new Blob([csv], {type: "text/csv"})
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `snapshot_${start}_${end}.csv`
+        a.click()
+        URL.revokeObjectURL(url)
     }
 
     const processRows = Object.entries(aggregatedProcesses)
@@ -126,9 +153,14 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                 </div>
                 <button
                     onClick={fetchRange}
-                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-                >
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">    
                     Search
+                </button>
+                <button
+                    onClick={exportCSV}
+                    disabled={snapshots.length === 0}
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">    
+                    Export as CSV
                 </button>
             </div>
 
@@ -160,6 +192,8 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                                     {/* need to cover up ips!! */}
                                     <TableCell className="text-muted-foreground font-mono text-xs">
                                         {[...d.ips].slice(0, 4).join(", ") || "—"}
+                                        <br/>
+                                        {[...d.hosts].join(", ")}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground font-mono text-xs">
                                         {[...d.ports].slice(0, 4).join(", ") || "—"}
