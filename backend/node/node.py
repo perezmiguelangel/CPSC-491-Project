@@ -15,9 +15,18 @@ def getConnectionData():
         try:
             if x.status in ['ESTABLISHED', 'LISTEN']:
                 # Now for lookup of corresponding process
+                host = "Not found"
                 remoteIP = x.raddr.ip if x.raddr else "Local"
+                if remoteIP != "Local":
+                    try:
+                        host, alias, ipList = socket.gethostbyaddr(remoteIP)
+                        #print(f"Remote IP: {remoteIP} == DNS: {socket.gethostbyaddr(remoteIP)}")
+                    except socket.herror as e:
+                        print(f"Host lookup error: {e}")
+                    except socket.error as e:
+                        print(f"Socket.gethostbyaddr error: {e}")
+
                 remotePort = x.raddr.port if x.raddr else None
-                
                 processName = "System"
                 if x.pid:
                     process = psutil.Process(x.pid)
@@ -28,7 +37,8 @@ def getConnectionData():
                     "local_port": x.laddr.port,
                     "remote_ip": remoteIP,
                     "remote_port": remotePort,
-                    "status": x.status
+                    "status": x.status,
+                    "remote_ip_hostname": host
                 })
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass

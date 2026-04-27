@@ -36,6 +36,7 @@ class ConnectionData(BaseModel):
     remote_ip: str
     remote_port: Optional[int] = None
     status: str
+    remote_ip_hostname: str
 
 class DockerContainer(BaseModel):
     name: str
