@@ -29,12 +29,14 @@ const data = {
       title: "Nodes",
       url:   "/nodes",
       icon:  IconTopologyRing2
-    },
+    }
+    /*,
     {
       title: "Settings",
       url:   "/settings",
       icon:  IconSettings
     }
+      */
   ]
 };
 
@@ -64,7 +66,6 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <div>
           <ModeToggle/>
-          <span className="group-data-[state=collapsed]:hidden">Username</span>
         </div>
           </SidebarFooter>
       

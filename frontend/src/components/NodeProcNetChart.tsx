@@ -43,7 +43,7 @@ interface Props {
 }
 
 const timeFormat = (iso: string) =>
-  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit"})
+  new Date(iso + "Z").toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit"})
 
 const API_Addr = "http://127.0.0.1:8000"
 
@@ -56,7 +56,6 @@ export function NodeProcNetChart({hostname, refreshTrigger}: Props) {
     try {
     const response = await fetch(`${API_Addr}/api/nodes/${hostname}/snapshots`)
     const data = await response.json()
-
     setSnapshots(data)
     setLoading(false)
     }

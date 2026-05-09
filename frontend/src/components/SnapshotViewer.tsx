@@ -128,11 +128,22 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
     const mostRecentSnapshot = snapshots[snapshots.length - 1]
     dockerContainers = mostRecentSnapshot.dockerData ?? []
     }
+
+    const formatDateTime = (isoString: string) => {
+        return new Date(isoString + "Z").toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex gap-2 items-end justify-center">
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">Start Date-Time</label>
+                    <label className="text-xs text-muted-foreground">Start Date-Time (UTC)</label>
                     <input
                         type="text"
                         value={start}
@@ -142,7 +153,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">End Date-Time</label>
+                    <label className="text-xs text-muted-foreground">End Date-Time (UTC)</label>
                     <input
                         type="text"
                         value={end}
@@ -174,7 +185,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                 <div className="space-y-6">
                     <div>
                         <p className="text-xs text-muted-foreground mb-2">
-                            {snapshots.length} snapshots found between {start} and {end}
+                            {snapshots.length} snapshots found between {formatDateTime(start)} and {formatDateTime(end)}
                         </p>
                     </div>
                     

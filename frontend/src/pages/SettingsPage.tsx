@@ -7,10 +7,10 @@ export default function SettingsPage(){
         <div className="grid gap-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <UICard title="Settings" desc="" footer="">
-                
+                    Test
                 </UICard>
                 <UICard title="Settings" desc="" footer="">
-                
+                    Test
                 </UICard>
             </div>
         </div>

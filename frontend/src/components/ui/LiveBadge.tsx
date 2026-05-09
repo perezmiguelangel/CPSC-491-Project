@@ -11,7 +11,7 @@ export function LiveBadge({ lastSeen }: { lastSeen: string}) {
             if (!lastSeen){
                 return;
             }
-            const lastSeenDate = new Date(lastSeen).getTime();
+            const lastSeenDate = new Date(lastSeen + "Z").getTime();
             const timeNow = Date.now();
             const timeDiff = timeNow - lastSeenDate;
 

@@ -53,7 +53,7 @@ export default function NodesPage(){
     }, []);
 
     const formatDateTime = (isoString: string) => {
-        return new Date(isoString).toLocaleString('en-US', {
+        return new Date(isoString + "Z").toLocaleString('en-US', {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',

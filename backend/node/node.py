@@ -1,7 +1,6 @@
 # Script to send appropriate node information to admin
 
 import psutil, socket, requests, time, docker
-import json
 import subprocess
 
 def getConnectionData():
@@ -10,7 +9,6 @@ def getConnectionData():
     print(f"Total Connections: {len(connections)}")
     connectionData = []
 
-    #Need to figure out per process network io!!
     for x in connections:
         try:
             if x.status in ['ESTABLISHED', 'LISTEN']:

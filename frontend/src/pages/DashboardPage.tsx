@@ -33,18 +33,38 @@ export default function DashboardPage(){
     const [nodes, setNodes] = useState<nodeData[]>([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const [selectedHostname, setSelectedHostname] = useState<string>("homelab")
-    
+    const [status, setStatus] = useState<string>()
+
+        useEffect(() => {
+            const fetchStatus = async () => {
+                try{
+                    const response = await fetch("http://127.0.0.1:8000/api/pulse")
+                    const data = await response.json()
+                    setStatus(data)
+                }
+                catch(error){
+                    console.error("Error fetching init. status", error)
+                }
+            }
+
+            fetchStatus();
+            const x = setInterval(fetchStatus, 5000);
+
+            return () => clearInterval(x);
+        }, []);
+
         useEffect(() => {
             const fetchInitNodes = async () => {
                 try{
                     const response = await fetch("http://127.0.0.1:8000/api/nodes")
                     const data = await response.json()
-                    setNodes(data)
+                    setNodes(data) 
                 }
                 catch(error){
                     console.error("Error fetching init. nodes", error)
                 }
             }
+        
 
             fetchInitNodes();
 
@@ -73,8 +93,9 @@ export default function DashboardPage(){
             }, []);
 
     return(
-        <div className="grid gap-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             
+            <div className="lg:col-span-3">
             <UICard className="" title="Network History & Metrics" desc="CPU, memory, and network connections over time" footer="">
                 <Select value={selectedHostname} onValueChange={setSelectedHostname}>
                     <SelectTrigger className="w-45 mb-4">
@@ -93,26 +114,10 @@ export default function DashboardPage(){
                 </Select>
                 <NodeProcNetChart hostname={selectedHostname} refreshTrigger={refreshTrigger} />
             </UICard>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            </div>
+           
                 
-                <div className="lg:col-span-2">
-                    <UICard title="Nodes" desc="">
-                        <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
-                            {nodes.map((item) => (
-                                <TableRow key={item.hostname}>
-                                    <TableCell>{item.hostname}</TableCell>
-                                    <TableCell>{item.localIP}</TableCell>
-                                    <TableCell>{item.cpuTemp}°C</TableCell>
-                                    <TableCell>{item.memoryLoad}%</TableCell>
-                                    <TableCell>
-                                        <LiveBadge lastSeen={item.lastSeen} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </UITable>    
-                    </UICard>
-                </div>
+
                 <div className="justify-center">
                     
                     <UICard className="" title="Docker Containers" desc="" footer="">
@@ -136,8 +141,29 @@ export default function DashboardPage(){
                     </UICard>
                     
                 </div>
-            </div>
-
+          
+            <div className="lg:col-span-2">
+                    <UICard title="Nodes" desc="">
+                        <UITable caption={"Visit Nodes page for more"} headers={["Host", "IP", "CPU Temp.", "Memory Used", "Status"]}>
+                            {nodes.map((item) => (
+                                <TableRow key={item.hostname}>
+                                    <TableCell>{item.hostname}</TableCell>
+                                    <TableCell>{item.localIP}</TableCell>
+                                    <TableCell>{item.cpuTemp}°C</TableCell>
+                                    <TableCell>{item.memoryLoad}%</TableCell>
+                                    <TableCell>
+                                        <LiveBadge lastSeen={item.lastSeen} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </UITable>    
+                    </UICard>
+                </div>
+            <div className="">
+                    <UICard className="" title="Homelab Status" desc="" footer="">
+                            {status}
+                    </UICard>
+                </div>
             
         </div>
     )

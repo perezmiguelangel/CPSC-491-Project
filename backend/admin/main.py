@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from models import Node, nodeDB, Base, nodeSnapshotDB
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Set
 from sqlalchemy.orm import Session
+from sqlalchemy import text, func
 from database import getDB, engine, Base
 from urllib.parse import unquote
 
@@ -126,6 +127,23 @@ def get_snapshots(hostname: str, db: Session = Depends(getDB)):
         }
         for s in snapshots
     ]
+
+@app.get("/api/pulse")
+def get_systemPulse(db: Session = Depends(getDB)):
+    current = db.query(nodeSnapshotDB).filter(nodeSnapshotDB.hostname == "homelab")\
+                                        .order_by(nodeSnapshotDB.timestamp.desc())\
+                                        .first()
+    
+    cpuLoad = current.cpuLoad
+
+    if cpuLoad > 40:
+        status = "System is under greater load than normal 🫠"
+    elif cpuLoad > 15:
+        status = "System is busier than usual 😅"
+    else:
+        status = "System is near idle 🙂"
+
+    return status
 
 @app.get("/api/nodes")
 def get_nodes(db: Session = Depends(getDB)):
