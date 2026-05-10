@@ -1,3 +1,6 @@
+// Built upon shadcn/ui primitives
+// Extended/configured by Miguel Perez
+
 import { useState, useEffect } from "react";
 import { UITable } from "./UITable";
 import { TableCell, TableRow } from "./ui/table";
@@ -6,13 +9,13 @@ import { Badge } from "./ui/badge";
 const API_Addr = "http://127.0.0.1:8000"
 
 interface Snapshot {
-  timestamp: string
-  cpuLoad: number
-  memoryLoad: number
-  networkConnections: number
-  networkData: any[]
-  dockerData: any[]
-  netIOcounters: any
+    timestamp: string
+    cpuLoad: number
+    memoryLoad: number
+    networkConnections: number
+    networkData: any[]
+    dockerData: any[]
+    netIOcounters: any
 }
 interface Props {
     hostname: string
@@ -20,7 +23,7 @@ interface Props {
     initialEnd?: string
 }
 
-export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
+export function SnapshotViewer({ hostname, initialStart, initialEnd }: Props) {
     const [start, setStart] = useState(initialStart ?? "")
     const [end, setEnd] = useState(initialEnd ?? "")
     const [snapshots, setSnapshots] = useState<Snapshot[]>([])
@@ -30,7 +33,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
     const fetchRange = async () => {
         setLoading(true)
         setSearched(true)
-        try{
+        try {
             const response = await fetch(`${API_Addr}/api/nodes/${hostname}/snapshots/range?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
             const data = await response.json()
             setSnapshots(data)
@@ -43,19 +46,19 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
     }
 
     useEffect(() => {
-        if(initialStart && initialEnd){
+        if (initialStart && initialEnd) {
             fetchRange()
         }
     }, [initialStart, initialEnd])
 
     const formatBytes = (bytes: number) => {
-        if(bytes < 1024) return `${bytes} B`
+        if (bytes < 1024) return `${bytes} B`
         if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`
         if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
         return `${(bytes / 1024 ** 3).toFixed(1)} GB`
     }
-    
-    const aggregatedProcesses: Record<string, { count: number, ips: Set<string>, ports: Set<number> , hosts: Set<string>}> = {}
+
+    const aggregatedProcesses: Record<string, { count: number, ips: Set<string>, ports: Set<number>, hosts: Set<string> }> = {}
 
     for (const snapshot of snapshots) {
         for (const connection of snapshot.networkData ?? []) {
@@ -90,10 +93,10 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
         const prev = snapshots[i - 1].netIOcounters
         const curr = snapshots[i].netIOcounters
 
-    if (prev && curr) {
-        totalBytesSentDelta += curr.bytesSent - prev.bytesSent
-        totalBytesRecvDelta += curr.bytesRecv - prev.bytesRecv
-    }
+        if (prev && curr) {
+            totalBytesSentDelta += curr.bytesSent - prev.bytesSent
+            totalBytesRecvDelta += curr.bytesRecv - prev.bytesRecv
+        }
     }
 
     const exportCSV = () => {
@@ -110,7 +113,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
         )
 
         const csv = [headers, ...rows].map(r => r.join(",")).join("\n")
-        const blob = new Blob([csv], {type: "text/csv"})
+        const blob = new Blob([csv], { type: "text/csv" })
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
@@ -125,8 +128,8 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
     let dockerContainers: any[] = []
 
     if (snapshots.length > 0) {
-    const mostRecentSnapshot = snapshots[snapshots.length - 1]
-    dockerContainers = mostRecentSnapshot.dockerData ?? []
+        const mostRecentSnapshot = snapshots[snapshots.length - 1]
+        dockerContainers = mostRecentSnapshot.dockerData ?? []
     }
 
     const formatDateTime = (isoString: string) => {
@@ -164,13 +167,13 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                 </div>
                 <button
                     onClick={fetchRange}
-                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">    
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
                     Search
                 </button>
                 <button
                     onClick={exportCSV}
                     disabled={snapshots.length === 0}
-                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">    
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
                     Export as CSV
                 </button>
             </div>
@@ -188,7 +191,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                             {snapshots.length} snapshots found between {formatDateTime(start)} and {formatDateTime(end)}
                         </p>
                     </div>
-                    
+
                     <div>
                         <h3 className="text-sm font-semibold mb-2">Processes (During Time Range)</h3>
                         <UITable caption="" headers={["Process", "Total Connections", "Remote IPs", "Ports"]}>
@@ -203,7 +206,7 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                                     {/* need to cover up ips!! */}
                                     <TableCell className="text-muted-foreground font-mono text-xs">
                                         {[...d.ips].slice(0, 4).join(", ") || "—"}
-                                        <br/>
+                                        <br />
                                         {[...d.hosts].join(", ")}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground font-mono text-xs">
@@ -215,21 +218,21 @@ export function SnapshotViewer({hostname, initialStart, initialEnd}: Props) {
                     </div>
                     <div>
                         <span className="text-m text-muted-foreground mb-2">
-                            Total data sent during window: 
+                            Total data sent during window:
                         </span>
                         <span className="text-m text-blue-400">
                             {formatBytes(totalBytesSentDelta)}
                         </span>
-                        
+
                     </div>
                     <div>
                         <span className="text-m text-muted-foreground mb-2">
-                            Total data received during window: 
+                            Total data received during window:
                         </span>
                         <span className="text-m text-blue-400">
                             {formatBytes(totalBytesRecvDelta)}
                         </span>
-                        
+
                     </div>
                     <div>
                         <h3 className="text-sm font-semibold mb-2">Docker Containers (During Time Range)</h3>

@@ -3,6 +3,8 @@
 import psutil, socket, requests, time, docker
 import subprocess
 
+API_ADDR = "http://100.64.0.2:8000/api/nodes"
+
 def getConnectionData():
     # inet gives both ipv4/6 
     connections = psutil.net_connections(kind='inet')
@@ -110,7 +112,7 @@ def sendNodeData():
 
     try:
         response = requests.post(
-            "http://100.64.0.2:8000/api/nodes",
+            API_ADDR,
             json=data,
             timeout=5
         )
