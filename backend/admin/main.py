@@ -134,6 +134,9 @@ def get_systemPulse(db: Session = Depends(getDB)):
                                         .order_by(nodeSnapshotDB.timestamp.desc())\
                                         .first()
     
+    if not current:
+        return "No data found yet!"
+
     cpuLoad = current.cpuLoad
 
     if cpuLoad > 40:

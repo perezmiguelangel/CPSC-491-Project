@@ -1,7 +1,7 @@
-# Warden: A full stack solution to monitoring nodes
+# Allay: A full stack solution to monitoring nodes
 ## CPSC 491 Project (WIP) - Miguel Perez
 
-Warden is a solution to easily interpreting the overall status of your home servers via a friendly web GUI. This is a very WIP project and is not intended for live deployment as of yet.
+Allay is a solution to easily interpreting the overall status of your home servers via a friendly web GUI. This is a very WIP project and is not intended for live deployment as of yet.
 The project includes everything from the backend to the frontend, allowing a fully self-hosted environment.
 
 ## Main Features
@@ -12,7 +12,7 @@ The project includes everything from the backend to the frontend, allowing a ful
 - Lightweight
 
 ## Architecture
-Warden is split into 3 components to ensure a lightweight monitoring agent
+Allay is split into 3 components to ensure a lightweight monitoring agent
 1. Node Monitoring Agent (node.py):
    - Python 3.x
    - psutil
@@ -28,7 +28,7 @@ Warden is split into 3 components to ensure a lightweight monitoring agent
 ## How to Run
 1. Start backend API
    ```
-   pip install fastapi uvicorn sqlalchemy psutil
+   pip install fastapi uvicorn sqlalchemy psutil websockets
    uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
 2. Start frontend dashboard
